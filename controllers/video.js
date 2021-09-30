@@ -46,19 +46,12 @@ const deleteComment = async (req, res) => {
 
   try {
     let video = await Video.findById(videoId);
-    const userComments = video.comments
-      .map((item) => {
-        if (item.user == id) {
-          return item;
-        } else if (isAdmin) {
-          return item;
-        } else {
-          return;
-        }
-      })
-      .filter((item) => item != null);
-
-    userComments.id(commentId).remove();
+    video.comments.splice(
+      video.comments.findIndex(
+        (item) => item._id === commentId && (item.user == id || isAdmin)
+      ),
+      1
+    );
     video = await video.save();
     const allVideos = await Video.find({});
     res
